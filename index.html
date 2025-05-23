@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+   <html lang="en">
+   <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Truth or Dare Game</title>
+     <link rel="stylesheet" href="styles.css">
+   </head>
+   <body>
+     <h1>Hey, wanna play Truth or Dare with me?</h1>
+
+     <div class="button-group">
+       <button class="btn" id="yesBtn">Yes</button>
+       <button class="btn" id="noBtn">No</button>
+     </div>
+
+     <!-- Modals -->
+     <div class="modal" id="yesModal">
+       <div class="modal-content">
+         <h2>Awesome!</h2>
+         <p>What's your name? (So I can make it personal!)</p>
+         <input type="text" id="yesNameInput" class="modal-input" placeholder="Your name">
+         <button class="btn" id="enterBtn">Let's Play!</button>
+       </div>
+     </div>
+     <div class="modal" id="noModal">
+       <div class="modal-content">
+         <h2>No worries!</h2>
+         <p>Please enter your name anyway!</p>
+         <input type="text" id="noNameInput" class="modal-input" placeholder="Your name">
+         <button class="btn" id="noSubmitBtn">Submit</button>
+       </div>
+     </div>
+     <div class="modal" id="noThanksModal">
+       <div class="modal-content">
+         <h2>Thanks for letting me know!</h2>
+         <p id="noThanksMessage">Maybe another time? 😊 Text me if you change your mind!</p>
+         <button class="btn" onclick="handleModal('noThanksModal', 'close')">Close</button>
+       </div>
+     </div>
+
+     <div class="footer">
+       <div class="footer-text">Made By Dummer</div>
+     </div>
+
+     <!-- Firebase SDK -->
+     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
+     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js"></script>
+
+     <script type="module">
+       import { handleModal, saveNoResponse, saveYesResponse } from './js/game-logic.js';
+       import { initializeFirebase } from './js/firebase.js';
+
+       document.addEventListener('DOMContentLoaded', () => {
+         initializeFirebase();
+
+         document.getElementById('yesBtn').addEventListener('click', () => {
+           handleModal('yesModal', 'open');
+         });
+
+         document.getElementById('noBtn').addEventListener('click', () => {
+           handleModal('noModal', 'open');
+         });
+
+         document.getElementById('enterBtn').addEventListener('click', async () => {
+           const name = document.getElementById('yesNameInput').value.trim();
+           if (name) {
+             try {
+               await saveYesResponse(name);
+               localStorage.setItem('playerName', name);
+               window.location.href = `welcome.html?name=${encodeURIComponent(name)}`;
+             } catch (error) {
+               console.error('Error saving yes response:', error);
+               alert('Oops, something went wrong. Please try again!');
+             }
+           } else {
+             alert('Please enter a name!');
+           }
+         });
+
+         document.getElementById('noSubmitBtn').addEventListener('click', async () => {
+           const name = document.getElementById('noNameInput').value.trim();
+           if (name) {
+             try {
+               await saveNoResponse(name);
+               localStorage.setItem('playerName', name);
+               document.getElementById('noThanksMessage').textContent = `No worries, ${name}! Maybe another time? Text me if you change your mind! 😊`;
+               handleModal('noModal', 'close');
+               handleModal('noThanksModal', 'open');
+             } catch (error) {
+               console.error('Error saving no response:', error);
+               alert('Oops, something went wrong. Please try again!');
+             }
+           } else {
+             alert('Please enter a name!');
+           }
+         });
+       });
+     </script>
+   </body>
+   </html>

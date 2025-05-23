@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Dare</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Your Dare! 😈</h1>
+  <div class="game-content">
+    <p id="dare"></p>
+    <textarea id="dareAnswer" class="answer-input" placeholder="Describe how you completed the dare"></textarea>
+    <button id="submitDareAnswer" class="btn">Submit Answer</button>
+    <a href="https://instagram.com/your_username" target="_blank" class="btn">Follow Me</a>
+  </div>
+  <div id="thanksModal" class="modal">
+    <div class="modal-content">
+      <p>Thanks for sharing! Text me to talk more about it? 😊</p>
+      <button onclick="window.location.href='welcome.html'" class="btn">Close</button>
+    </div>
+  </div>
+  <footer class="footer">
+    <p class="footer-text">Made By Dummer</p>
+  </footer>
+  <script type="module">
+    import { getRandomItem } from './public/game-data.js';
+    import { handleModal, submitDareAnswer } from './game-logic.js';
+    import { dares } from './game-data.js';
+    import { initializeFirebase } from './firebase.js';
+
+    initializeFirebase();
+    const dareElement = document.getElementById('dare');
+    const dare = getRandomItem(dares);
+    dareElement.textContent = dare;
+
+    document.getElementById('submitDareAnswer').addEventListener('click', async () => {
+      const answer = document.getElementById('dareAnswer').value.trim();
+      const name = localStorage.getItem('playerName') || 'Anonymous';
+      if (answer) {
+        await submitDareAnswer(name, dare, answer);
+        handleModal('thanksModal', 'open');
+      } else {
+        alert('Please enter an answer!');
+      }
+    });
+  </script>
+</body>
+</html>

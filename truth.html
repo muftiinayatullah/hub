@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+   <html lang="en">
+   <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Truth Challenge</title>
+     <link rel="stylesheet" href="styles.css">
+   </head>
+   <body>
+     <h1>Your Truth! 😈</h1>
+
+     <div class="game-content">
+       <div id="truth"></div>
+       <textarea id="answerInput" class="answer-input" placeholder="Type your answer here..."></textarea>
+       <button class="btn" id="submitAnswerBtn">Submit Answer</button>
+     </div>
+
+     <div class="message-prompt" id="messagePrompt" style="display: none;">
+       <p>Thanks for sharing! Text me to talk more about it? 😊</p>
+     </div>
+
+     <div class="footer">
+       <div class="footer-text">Made By Dummer</div>
+     </div>
+
+     <!-- Firebase SDK -->
+     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
+     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js"></script>
+
+     <script type="module">
+       import { truths, getRandomItem } from './js/game-data.js';
+       import { initializeFirebase, saveAnswer } from './js/firebase.js';
+
+       document.addEventListener('DOMContentLoaded', () => {
+         const truthElement = document.getElementById('truth');
+         const answerInput = document.getElementById('answerInput');
+         const submitAnswerBtn = document.getElementById('submitAnswerBtn');
+         const messagePrompt = document.getElementById('messagePrompt');
+
+         // Load a random truth
+         const currentTruth = getRandomItem(truths);
+         truthElement.textContent = currentTruth;
+
+         // Initialize Firebase
+         initializeFirebase();
+
+         // Handle answer submission
+         submitAnswerBtn.addEventListener('click', async () => {
+           const answer = answerInput.value.trim();
+           const name = localStorage.getItem('playerName') || 'Anonymous';
+           if (answer) {
+             try {
+               await saveAnswer(name, currentTruth, answer);
+               answerInput.value = '';
+               messagePrompt.style.display = 'block';
+             } catch (error) {
+               console.error('Error saving answer:', error);
+               alert('Oops, something went wrong. Please try again!');
+             }
+           } else {
+             alert('Please type an answer!');
+           }
+         });
+       });
+     </script>
+   </body>
+   </html>
