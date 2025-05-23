@@ -3,43 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Dare</title>
+  <title>Your Dare! 😈</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Your Dare! 😈</h1>
-  <div class="game-content">
+  <div class="container">
+    <h1>Your Dare! 😈</h1>
     <p id="dare"></p>
-    <textarea id="dareAnswer" class="answer-input" placeholder="Describe how you completed the dare"></textarea>
-    <button id="submitDareAnswer" class="btn">Submit Answer</button>
-    <a href="https://instagram.com/your_username" target="_blank" class="btn">Follow Me</a>
-  </div>
-  <div id="thanksModal" class="modal">
-    <div class="modal-content">
-      <p>Thanks for sharing! Text me to talk more about it? 😊</p>
-      <button onclick="window.location.href='welcome.html'" class="btn">Close</button>
+    <form id="answerForm">
+      <textarea id="dareAnswer" name="answer" rows="4" cols="50" class="answer-input" placeholder="Type your answer here..."></textarea>
+      <br>
+      <button type="submit" id="submitDareAnswer" class="btn">Submit Answer</button>
+      <a href="https://instagram.com/your_username" target="_blank" class="btn">Follow Me</a>
+    </form>
+    <div class="modal" id="thanksModal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">×</span>
+        <p>Thanks for sharing! Text me to talk more about it? 😊</p>
+      </div>
     </div>
+    <footer>
+      <p>Made By Dummer</p>
+    </footer>
   </div>
-  <footer class="footer">
-    <p class="footer-text">Made By Dummer</p>
-  </footer>
+  <div class="empty-div"></div>
+  <div class="another-empty-div"></div>
   <script type="module">
     import { getRandomItem } from './public/game-data.js';
-    import { handleModal, submitDareAnswer } from './game-logic.js';
     import { dares } from './game-data.js';
     import { initializeFirebase } from './firebase.js';
+    import { submitDareAnswer } from './game-logic.js';
 
     initializeFirebase();
     const dareElement = document.getElementById('dare');
     const dare = getRandomItem(dares);
     dareElement.textContent = dare;
 
-    document.getElementById('submitDareAnswer').addEventListener('click', async () => {
+    function closeModal() {
+      document.getElementById('thanksModal').style.display = 'none';
+    }
+
+    document.getElementById('answerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
       const answer = document.getElementById('dareAnswer').value.trim();
       const name = localStorage.getItem('playerName') || 'Anonymous';
       if (answer) {
         await submitDareAnswer(name, dare, answer);
-        handleModal('thanksModal', 'open');
+        document.getElementById('thanksModal').style.display = 'block';
       } else {
         alert('Please enter an answer!');
       }
